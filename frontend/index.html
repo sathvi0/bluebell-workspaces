@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BlueBell Workspaces</title>
+
+  <!-- icon library -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- main stylesheet (kept) -->
+  <link rel="stylesheet" href="/src/style.css" />
+
+  <!-- Scoped overrides & layout + interaction styles -->
+  <style>
+    :root{
+      --accent:#2e46ff;
+      --yellow:#f5c400;
+      --muted:#6b7280;
+      --text:#111827;
+    }
+
+    /* ====== HERO tweaks (smaller option cards and consistent sizes) ====== */
+    .hero-inner .hero-options { gap: 14px; margin-bottom: 10px; }
+    .hero-inner .option-card {
+      min-width: 220px;        /* smaller than before */
+      padding: 18px 20px;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.45);
+      color: #fff;
+      box-shadow: none;
+      border: 1px solid rgba(255,255,255,0.08);
+      text-align:center;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      font-weight:700;
+      transition: transform .15s ease, background .15s;
+    }
+    .hero-inner .option-card .icon { font-size:22px; }
+    .hero-inner .option-card.active {
+      background: #fff;
+      color: var(--accent);
+      transform: translateY(-6px);
+      box-shadow: 0 18px 40px rgba(2,6,23,0.16);
+    }
+
+    /* floating search-card */
+    .search-card {
+      max-width: 980px;
+      margin: 18px auto 0;
+      padding: 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.98);
+      box-shadow: 0 20px 40px rgba(2,6,23,0.08);
+      transform: translateY(18px);
+    }
+
+    /* control row inside floating card (pills) */
+    .floating-pills {
+      display:flex;
+      gap:18px;
+      justify-content:center;
+      align-items:center;
+      margin-bottom:8px;
+      flex-wrap:wrap;
+    }
+    .floating-pills .pill {
+      background:#fff;
+      border-radius:999px;
+      padding:12px 22px;
+      border:1px solid rgba(2,6,23,0.06);
+      cursor:pointer;
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+      font-weight:700;
+      min-width:160px;
+      justify-content:center;
+    }
+    .floating-pills .pill.active {
+      outline: 3px solid rgba(46,70,255,0.12);
+      transform: translateY(-2px);
+      background: rgba(243,243,255,1);
+    }
+
+    .floating-msg {
+      text-align:center;
+      padding:14px;
+      background: rgba(243,243,255,0.8);
+      border-top: 1px solid rgba(0,0,0,0.03);
+      border-bottom: 1px solid rgba(0,0,0,0.03);
+      font-weight:600;
+      color:var(--text);
+    }
+
+    /* smaller search row */
+    .controls { display:flex; gap:14px; align-items:center; padding:14px 8px; }
+    .controls select, .controls input { padding:12px 14px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); flex:1; }
+    #view { background:var(--accent); color:#fff; padding:12px 20px; border-radius:10px; font-weight:700; border:0; cursor:pointer; }
+
+    /* ====== CARD GRID consistency ====== */
+    .card-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:18px; }
+    .card {
+      display:flex;
+      flex-direction:column;
+      border-radius:12px;
+      overflow:hidden;
+      background:#fff;
+      border:1px solid rgba(2,6,23,0.04);
+      box-shadow: 0 8px 26px rgba(4,12,30,0.04);
+      height:100%;
+    }
+    .card-media { height:220px; overflow:hidden; flex:0 0 auto; }
+    .card-media img { width:100%; height:100%; object-fit:cover; display:block; }
+    .card-body { padding:18px; display:flex; flex-direction:column; gap:12px; flex:1 1 auto; }
+    .card-title { font-size:24px; font-weight:800; margin:0; color:var(--text); }
+    .card-desc { color:var(--muted); margin:0; line-height:1.45; }
+    .card-cta { margin-top:auto; color:var(--accent); font-weight:700; text-decoration:none; display:inline-block; padding-top:8px; }
+
+    /* RENT-LONGER: horizontal scroller variant (so virtual shows too) */
+    .rent-longer .card-grid { display:flex; gap:18px; align-items:stretch; overflow-x:auto; padding-bottom:12px; -webkit-overflow-scrolling:touch; }
+    .rent-longer .card { min-width:340px; max-width:420px; flex:0 0 auto; }
+
+    /* On-demand scroller variant (kept) */
+    .on-demand .card-grid { display:flex; gap:18px; align-items:stretch; overflow-x:auto; padding-bottom:12px; -webkit-overflow-scrolling:touch; }
+    .on-demand .card { min-width:340px; max-width:420px; flex:0 0 auto; }
+
+    /* ====== Why choose centered box ====== */
+    .why-choose { margin:48px auto; max-width:1100px; padding:46px 40px; border-radius:12px; box-shadow:0 18px 30px rgba(18,24,31,0.06); background:#16238f; color:#fff; }
+    .why-title { color:var(--yellow); font-size:40px; margin:0 0 8px; font-weight:800; }
+    .why-sub { color:rgba(255,255,255,0.92); margin:0 0 20px; max-width:820px; }
+
+    .why-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px 32px; }
+    .why-item { display:flex; gap:14px; align-items:flex-start; background:rgba(255,255,255,0.03); padding:14px; border-radius:10px; border:1px solid rgba(255,255,255,0.03); }
+    .why-item i { color:var(--yellow); font-size:26px; min-width:36px; }
+
+    /* ====== Solutions scroller & solution card sizing ====== */
+    .solutions-section { margin:48px auto; padding:0 20px; max-width:1100px; }
+    .solution-pills { display:flex; gap:12px; margin:10px 0 14px; padding-bottom:8px; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    .solution-pills .pill { background:#fff; padding:12px 18px; border-radius:10px; border:1px solid rgba(2,6,23,0.06); font-weight:600; min-width:240px; cursor:pointer; box-shadow: 0 8px 18px rgba(2,6,23,0.04); }
+    .solution-pills .pill.active { outline:3px solid rgba(46,70,255,0.10); transform:translateY(-2px); }
+
+    .solutions-grid { display:flex; gap:18px; align-items:flex-start; overflow-x:auto; padding:14px 6px 22px; -webkit-overflow-scrolling:touch; }
+    .solution-card { flex:0 0 340px; min-width:340px; display:flex; flex-direction:column; border-radius:12px; overflow:hidden; background:#fff; border:1px solid rgba(2,6,23,0.04); box-shadow: 0 12px 30px rgba(18,24,31,0.06); }
+    .solution-media { height:200px; overflow:hidden; }
+    .solution-media img { width:100%; height:100%; object-fit:cover; display:block; }
+    .solution-body { padding:16px; display:flex; flex-direction:column; gap:10px; min-height:120px; } /* min-height helps equalize cards */
+    .solution-body h4 { margin:0; font-size:20px; font-weight:800; color:var(--text); }
+    .solution-body p { margin:0; color:var(--muted); }
+    .solution-body a { margin-top:auto; color:var(--accent); font-weight:700; text-decoration:none; }
+
+    /* ====== Planning section (two-column, image right) ====== */
+    .planning { background:#f8fafc; padding:44px 20px; margin-top:18px; }
+    .planning-inner { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:1fr 420px; gap:28px; align-items:center; }
+    .planning h2 { font-size:44px; margin:0 0 12px; font-weight:800; color:var(--text); }
+    .planning-sub { color:var(--muted); margin:0 0 18px; font-size:18px; }
+    .bullets { display:grid; grid-template-columns:1fr 1fr; gap:10px 18px; padding:0; margin:0 0 16px; }
+    .bullets li { list-style:none; font-weight:700; padding-left:22px; position:relative; color:var(--text); line-height:1.6; }
+    .bullets li::before { content:"✔"; position:absolute; left:0; top:0; color:var(--accent); font-weight:700; transform:translateY(1px); }
+
+    .plan-media img { width:100%; height:auto; border-radius:8px; display:block; }
+
+    /* small screens */
+    @media (max-width:980px){
+      .card-grid { grid-template-columns: repeat(2, 1fr); }
+      .on-demand .card { min-width:300px; }
+      .rent-longer .card { min-width:300px; }
+      .solutions-grid .solution-card { min-width:300px; flex:0 0 300px; }
+      .planning-inner { grid-template-columns:1fr; }
+      .bullets { grid-template-columns:1fr; }
+      .why-grid { grid-template-columns:1fr; }
+    }
+    @media (max-width:600px){
+      .card-grid { grid-template-columns: 1fr; }
+      .hero-inner .option-card { min-width:160px; padding:12px 14px; }
+      .floating-pills .pill { min-width:140px; padding:10px 14px; }
+    }
+
+    /* ensure consistent focus styles for accessibility */
+    .pill:focus, .option-card:focus, .solution-pills .pill:focus { outline: 3px solid rgba(46,70,255,0.12); outline-offset: 3px; }
+  </style>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <header class="site-header container" role="banner">
+    <div class="brand" role="img" aria-label="Bluebell logo and name">
+      <img src="/assets/bb_logo.png" alt="Bluebell logo" class="logo" />
+      <div class="brand-text">
+        <div class="brand-name">Bluebell</div>
+        <div class="brand-sub">Workspaces</div>
+      </div>
+    </div>
+
+    <!-- centered search -->
+    <div class="top-search" role="search">
+      <div class="search-input" aria-label="Search location or workspace">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" placeholder="Search location or workspace" aria-label="Search location or workspace"/>
+      </div>
+    </div>
+
+    <nav class="top-nav" aria-hidden="true">
+      <a href="#">All Solutions ▾</a>
+      <a href="#">More ▾</a>
+      <a href="#">List your space</a>
+      <a href="#">Share requirement</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero" aria-label="Hero" style="position:relative;">
+      <div class="hero-bg" aria-hidden="true" style="position:absolute;inset:0;background-image:url('/assets/hero.jpg');background-size:cover;background-position:center;filter:brightness(0.45);"></div>
+
+      <div class="hero-inner container" style="position:relative;z-index:10;padding:80px 20px 40px;text-align:center;color:#fff;">
+        <h1 class="hero-title" style="font-size:56px;font-weight:800;margin:0 0 14px;text-shadow:0 12px 30px rgba(0,0,0,0.45);">The new way to offices</h1>
+        <p class="hero-sub" style="font-size:20px;margin:0 0 18px;opacity:0.95;">Choose between office space, pay-per-use plans or fixed desks for large enterprises and individuals</p>
+
+        <div class="hero-options" role="tablist" aria-label="Service types">
+          <button class="option-card active" data-key="longterm" aria-pressed="true">
+            <div class="icon"><i class="fa-solid fa-building"></i></div>
+            <div class="label">Long-term Leasing</div>
+          </button>
+
+          <button class="option-card" data-key="ondemand" aria-pressed="false">
+            <div class="icon"><i class="fa-solid fa-clock"></i></div>
+            <div class="label">On-demand</div>
+          </button>
+
+          <button class="option-card" data-key="virtual" aria-pressed="false">
+            <div class="icon"><i class="fa-solid fa-suitcase"></i></div>
+            <div class="label">Virtual Office</div>
+          </button>
+        </div>
+
+        <!-- floating search card: below hero options -->
+        <div class="search-card" id="floatingCard" role="region" aria-label="Service selector card">
+          <!-- pills inside floating card (content changes per hero tab) -->
+          <div class="floating-pills" id="floatingPills" role="tablist">
+            <!-- pills added by JS -->
+          </div>
+
+          <div class="floating-msg" id="floatingMsg">Rent dedicated seats and private cabins in fully-equipped coworking spaces</div>
+
+          <div class="controls">
+            <div style="min-width:160px;">
+              <label style="display:block;font-size:12px;color:#8b8f95;margin-bottom:6px;">City</label>
+              <select id="citySelect" aria-label="Choose city">
+                <option>Hyderabad</option>
+                <option>Bengaluru</option>
+                <option>Mumbai</option>
+              </select>
+            </div>
+
+            <div style="flex:1;">
+              <label style="display:block;font-size:12px;color:#8b8f95;margin-bottom:6px;opacity:0;">Search</label>
+              <input type="search" id="heroSearch" placeholder="Search location or workspaces in Hyderabad" aria-label="Search workspaces" />
+            </div>
+
+            <div style="min-width:220px;display:flex;align-items:flex-end;justify-content:flex-end;">
+              <button id="view">View Workspaces</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1) LISTINGS / CARDS (Rent longer-term) - horizontal scroller so Virtual Office included -->
+    <section class="listings rent-longer" style="padding:48px 20px 28px;background:#fff;">
+      <div class="listings-header container" style="max-width:1100px;margin:0 auto 18px;">
+        <h3 class="listings-title" style="font-size:40px;font-weight:800;margin:8px 0 12px;color:var(--text);">Rent longer-term</h3>
+        <p class="listings-sub" style="color:var(--muted);margin:0 0 26px;max-width:900px;">Whatever may be your need, we save a solution that's right for you. Find the most suitable coworking or office solution.</p>
+      </div>
+
+      <div class="card-grid container" style="max-width:1100px;margin:0 auto;">
+        <!-- Card 1 -->
+        <article class="card">
+          <div class="card-media"><img src="/assets/card1.png" alt="Coworking Space" /></div>
+          <div class="card-body">
+            <h4 class="card-title">Coworking Space</h4>
+            <p class="card-desc">Full-time offices for teams of all sizes — plug-and-play desks, meeting rooms, community events, and vibrant neighbourhood locations.</p>
+            <a class="card-cta" href="#">Explore Coworking Space →</a>
+          </div>
+        </article>
+
+        <!-- Card 2 -->
+        <article class="card">
+          <div class="card-media"><img src="/assets/card2.jpg" alt="Managed Office" /></div>
+          <div class="card-body">
+            <h4 class="card-title">Managed Office</h4>
+            <p class="card-desc">Dedicated office spaces managed by providers — turnkey operations with facilities, cleaning, and operations support so your team can focus on work.</p>
+            <a class="card-cta" href="#">Explore Managed Office →</a>
+          </div>
+        </article>
+
+        <!-- Card 3 -->
+        <article class="card">
+          <div class="card-media"><img src="/assets/card4.jpg" alt="Office/Commercial Spaces" /></div>
+          <div class="card-body">
+            <h4 class="card-title">Office / Commercial Spaces</h4>
+            <p class="card-desc">Rent or lease large office and commercial spaces — flexible layouts, long-term leasing, and custom-fitouts to match your brand and operations.</p>
+            <a class="card-cta" href="#">Explore Office / Commercial Spaces →</a>
+          </div>
+        </article>
+
+        <!-- Card 4 (Virtual Office restored) -->
+        <article class="card">
+          <div class="card-media"><img src="/assets/card4.jpg" alt="Virtual Office" /></div>
+          <div class="card-body">
+            <h4 class="card-title">Virtual Office</h4>
+            <p class="card-desc">Professional business address, mail handling, and phone support without committing to a physical desk — ideal for remote teams and startups.</p>
+            <a class="card-cta" href="#">Explore Virtual Office →</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 2) ON-DEMAND (horizontal scroller) -->
+    <section class="listings on-demand" style="padding:36px 20px;">
+      <div class="listings-header container" style="max-width:1100px;margin:0 auto 8px;">
+        <h3 class="listings-title" style="font-size:32px;font-weight:800;margin:8px 0 12px;color:var(--text);">Book on-demand</h3>
+        <p class="listings-sub" style="color:var(--muted);margin:0 0 18px;">Flexible bookings — by the hour, by the day or team passes for flexible work patterns.</p>
+      </div>
+
+      <div class="card-grid on-demand-grid container" style="max-width:1100px;margin:0 auto;">
+        <article class="card">
+          <div class="card-media"><img src="/assets/daypass.png" alt="Day Pass" /></div>
+          <div class="card-body">
+            <h4 class="card-title">Day Pass</h4>
+            <p class="card-desc">Flexible coworking for individuals — book a desk for the day at verified coworking spaces.</p>
+            <a class="card-cta" href="#">Explore Day Pass →</a>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-media"><img src="/assets/meeting_room.jpg" alt="Meeting Room" /></div>
+          <div class="card-body">
+            <h4 class="card-title">Meeting Room</h4>
+            <p class="card-desc">Book meeting rooms by the hour or day — conference-ready rooms, AV equipment, and catering options available.</p>
+            <a class="card-cta" href="#">Explore Meeting Room →</a>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-media"><img src="/assets/teamplan.webp" alt="Team Plan" /></div>
+          <div class="card-body">
+            <h4 class="card-title">Team Plan</h4>
+            <p class="card-desc">Team passes and centralized booking for distributed teams — manage seats, approvals and usage under a single plan.</p>
+            <a class="card-cta" href="#">Explore Team Plan →</a>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-media"><img src="/assets/eventspace.jpeg" alt="Event Space" /></div>
+          <div class="card-body">
+            <h4 class="card-title">Event Space</h4>
+            <p class="card-desc">Premium spaces for events, workshops, and conferences — flexible capacities and multi-day bookings supported.</p>
+            <a class="card-cta" href="#">Explore Event Space →</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 3) WHY CHOOSE (centered, below On-demand) -->
+    <section class="why-choose" aria-label="Why choose Bluebell">
+      <h2 class="why-title">Why choose <span>Bluebell Workspaces?</span></h2>
+      <p class="why-sub">We make finding the right workspace simple — transparent pricing, verified spaces and personalised support.</p>
+
+      <div class="why-grid">
+        <div class="why-item">
+          <i class="fa-solid fa-hand-holding-dollar"></i>
+          <div>
+            <h3 style="margin:0 0 6px;color:#fff;font-size:18px;">Zero brokerage fee</h3>
+            <p style="margin:0;color:rgba(255,255,255,0.9)">Get direct access to premium office spaces with transparent pricing and no brokerage.</p>
+          </div>
+        </div>
+
+        <div class="why-item">
+          <i class="fa-solid fa-bolt"></i>
+          <div>
+            <h3 style="margin:0 0 6px;color:#fff;font-size:18px;">Quick turnaround time</h3>
+            <p style="margin:0;color:rgba(255,255,255,0.9)">Fast onboarding and space handover so your team can move in quickly.</p>
+          </div>
+        </div>
+
+        <div class="why-item">
+          <i class="fa-solid fa-city"></i>
+          <div>
+            <h3 style="margin:0 0 6px;color:#fff;font-size:18px;">Largest workspace network</h3>
+            <p style="margin:0;color:rgba(255,255,255,0.9)">Access verified office spaces across multiple cities and flexible lease options.</p>
+          </div>
+        </div>
+
+        <div class="why-item">
+          <i class="fa-solid fa-user-tie"></i>
+          <div>
+            <h3 style="margin:0 0 6px;color:#fff;font-size:18px;">Dedicated consultant</h3>
+            <p style="margin:0;color:rgba(255,255,255,0.9)">One-on-one support from workspace experts to shortlist and finalize the best option for you.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4) SOLUTIONS (horizontal pills + scroller) -->
+    <section class="solutions-section container" aria-label="Select & customize solutions" style="margin-top:36px;">
+      <h2 style="margin:0 0 12px;font-size:22px;">Select & customize your ideal solutions</h2>
+      <p style="color:var(--muted);margin:0 0 12px;">Whether you're a freelancer, start-up or an enterprise — choose the solution that fits.</p>
+
+      <div class="solution-pills" role="tablist" aria-label="Solution types">
+        <button class="pill active" data-key="enterprise">Enterprise & Large Scale Companies</button>
+        <button class="pill" data-key="growing">Growing Companies & Small Businesses</button>
+        <button class="pill" data-key="freelancers">Freelancers & Business Travellers</button>
+        <button class="pill" data-key="early">Early stage startups & Non-Profits</button>
+        <button class="pill" data-key="remote">Remote & Mobile Teams</button>
+        <button class="pill" data-key="new">New and Expanding Businesses</button>
+      </div>
+
+      <div class="solutions-grid" id="solutionsGrid" tabindex="0" aria-label="Solution cards scroller">
+        <!-- cards populated by JS -->
+      </div>
+    </section>
+
+    <!-- 5) PLANNING (immediately below Solutions) -->
+    <section class="planning" aria-label="Planning">
+      <div class="planning-inner">
+        <div class="planning-text">
+          <h2>Planning your next office space?</h2>
+          <p class="planning-sub">Get in touch with our office space experts to secure premium offices designed as per your needs.</p>
+
+          <ul class="bullets">
+            <li>Customised Managed Offices</li>
+            <li>Ready-to-move-in Custom Offices</li>
+            <li>Dedicated Desks & Private Cabins</li>
+            <li>Hub & Spoke Offices</li>
+            <li>Hybrid Solutions</li>
+            <li>Virtual Office</li>
+          </ul>
+
+          <div class="cta">
+            <button onclick="location.href='#'">Explore Office Spaces</button>
+          </div>
+        </div>
+
+        <div class="plan-media">
+          <img src="/assets/card4.jpg" alt="Office / Commercial example" />
+        </div>
+      </div>
+    </section>
+
+    <!-- 6) content placeholder -->
+    <section class="content container" style="padding:48px 20px;">
+      <h2 style="font-size:28px;margin-bottom:10px;">How it works</h2>
+      <p style="color:var(--muted);">Short explanation about offerings and how customers can book or contact you.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer" style="padding:20px;background:#f7f7f7;text-align:center;margin-top:40px;">
+    <p>© <span id="year"></span> Bluebell Workspaces. All rights reserved.</p>
+  </footer>
+
+  <!-- Scripts: hero floating card + solutions pills + initial population -->
+  <script>
+    // year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    /* ===== HERO: floating card setups per main tab ===== */
+    const heroPills = {
+      longterm: {
+        pills: [
+          {k:'Coworking Space', icon:'fa-solid fa-chair', key:'coworking'},
+          {k:'Managed Office', icon:'fa-solid fa-building', key:'managed'},
+          {k:'Office/Commercial', icon:'fa-solid fa-city', key:'office'}
+        ],
+        msg: 'Rent dedicated seats and private cabins in fully-equipped coworking spaces',
+      },
+      ondemand: {
+        pills: [
+          {k:'Day Pass', icon:'fa-regular fa-star', key:'daypass'},
+          {k:'Meeting Room', icon:'fa-solid fa-people-roof', key:'meeting'},
+          {k:'Event Spaces', icon:'fa-solid fa-box-archive', key:'event'}
+        ],
+        msg: 'Desks-by-the-day in coworking spaces. Starting at ₹200/day',
+      },
+      virtual: {
+        pills: [
+          {k:'Virtual Office', icon:'fa-solid fa-building', key:'virtual'}
+        ],
+        msg: 'Professional address & business services',
+      }
+    };
+
+    const floatingPillsEl = document.getElementById('floatingPills');
+    const floatingMsgEl = document.getElementById('floatingMsg');
+
+    function renderFloatingFor(key){
+      floatingPillsEl.innerHTML = '';
+      const data = heroPills[key];
+      if(!data) return;
+      data.pills.forEach((p, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'pill' + (idx===0 ? ' active' : '');
+        btn.setAttribute('data-key', p.key);
+        btn.innerHTML = `<i class="${p.icon}"></i><span>${p.k}</span>`;
+        btn.addEventListener('click', () => {
+          floatingPillsEl.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+          btn.classList.add('active');
+          // when floating pill changes, also scroll solutions scroller to show matching card if present
+          const solutionsGrid = document.getElementById('solutionsGrid');
+          setTimeout(()=> {
+            const target = solutionsGrid.querySelector(`[data-key='${p.key}']`);
+            if(target) target.scrollIntoView({behavior:'smooth',inline:'center'});
+          },80);
+        });
+        floatingPillsEl.appendChild(btn);
+      });
+      floatingMsgEl.textContent = data.msg;
+    }
+
+    // attach hero main option events
+    document.querySelectorAll('.hero-inner .option-card').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.hero-inner .option-card').forEach(x => x.classList.remove('active'));
+        btn.classList.add('active');
+        // render floating content for the selected tab
+        const key = btn.getAttribute('data-key');
+        renderFloatingFor(key);
+
+        // also update floating msg placeholder and set search placeholder text
+        const msg = heroPills[key] ? heroPills[key].msg : '';
+        document.getElementById('floatingMsg').textContent = msg || '';
+        // update first pill as active visually
+        const first = document.querySelector('#floatingPills .pill');
+        if (first) { document.querySelectorAll('#floatingPills .pill').forEach(p=>p.classList.remove('active')); first.classList.add('active'); }
+      });
+    });
+
+    // initial hero floating content
+    renderFloatingFor('longterm');
+
+    /* ===== SOLUTIONS section population logic ===== */
+    const cardTemplates = {
+      coworking: { img:'/assets/card1.png', title:'Coworking Space', desc:'Full-time offices, dedicated seats & private cabins.' , href:'#' },
+      managed:  { img:'/assets/card2.jpg', title:'Managed Office', desc:'Furnished customized offices with managed operations & housekeeping.' , href:'#' },
+      office:   { img:'/assets/card4.jpg', title:'Office / Commercial Spaces', desc:'Long-term leases and custom fit-outs for larger teams.' , href:'#' },
+      teamplan: { img:'/assets/teamplan.webp', title:'Team Plan', desc:'Passes and centralized booking for distributed teams.' , href:'#' },
+      meeting:  { img:'/assets/meeting_room.jpg', title:'Meeting Room', desc:'Book meeting rooms with AV and conferencing facilities.' , href:'#' },
+      virtual:  { img:'/assets/card4.jpg', title:'Virtual Office', desc:'Professional address, mail handling and phone support.' , href:'#' },
+      daypass:  { img:'/assets/daypass.png', title:'Day Pass', desc:'Desks-by-the-day in coworking spaces.' , href:'#' },
+      event:    { img:'/assets/eventspace.jpeg', title:'Event Space', desc:'Flexible spaces for events and workshops.' , href:'#' }
+    };
+
+    const pillMap = {
+      enterprise: ['coworking','managed','office','teamplan'],
+      growing: ['coworking','meeting','virtual'],
+      freelancers: ['daypass','meeting'],
+      early: ['coworking','teamplan','virtual'],
+      remote: ['daypass','meeting'],
+      new: ['office','virtual','meeting','daypass']
+    };
+
+    const solutionsGrid = document.getElementById('solutionsGrid');
+
+    function createSolutionCard(key){
+      const d = cardTemplates[key];
+      const article = document.createElement('article');
+      article.className = 'solution-card';
+      article.setAttribute('data-key', key);
+      article.innerHTML = `
+        <div class="solution-media"><img src="${d.img}" alt="${d.title}" /></div>
+        <div class="solution-body">
+          <h4>${d.title}</h4>
+          <p>${d.desc}</p>
+          <a href="${d.href}">Explore ${d.title} →</a>
+        </div>
+      `;
+      return article;
+    }
+
+    function renderForKey(key){
+      solutionsGrid.innerHTML = '';
+      const group = pillMap[key] || [];
+      group.forEach(k => solutionsGrid.appendChild(createSolutionCard(k)));
+      // ensure scroller at left
+      solutionsGrid.scrollLeft = 0;
+    }
+
+    // pill click handling
+    document.querySelectorAll('.solution-pills .pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.solution-pills .pill').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        const key = btn.getAttribute('data-key');
+        renderForKey(key);
+      });
+    });
+
+    // initial render
+    renderForKey('enterprise');
+
+    // small keyboard scroll helper
+    (function(){
+      const scroller = document.querySelector('.solutions-grid');
+      if(!scroller) return;
+      scroller.addEventListener('keydown', e => {
+        if(e.key === 'ArrowRight') scroller.scrollBy({left:340,behavior:'smooth'});
+        if(e.key === 'ArrowLeft') scroller.scrollBy({left:-340,behavior:'smooth'});
+      });
+    })();
+
+    /* ===== Accessibility: focus outlines for pills (nice to have) ===== */
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Tab') document.body.classList.add('keyboard-mode');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,590 @@
+/* ---------- base ---------- */
+:root {
+  --accent: #2e46ff;
+  --white: #ffffff;
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --glass: rgba(255, 255, 255, 0.85);
+  --muted: #6b7280;
+  --text: #111827;
+  --yellow: #f5c400; /* Bluebell yellow */
+  --shadow-strong: 0 12px 40px rgba(2,6,23,0.18);
+  --shadow-soft: 0 8px 26px rgba(4,12,30,0.08);
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  height: 100%;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+a { text-decoration: none; color: inherit; }
+
+/* container helper */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ================= HEADER ================= */
+.site-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 20px;
+  padding: 12px 28px;
+  background: #fff;               /* white header */
+  position: relative;
+  z-index: 60;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+}
+
+/* brand (logo + text) */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.brand .logo {
+  height: 48px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+  margin-left: 6px;
+}
+/* Bluebell in yellow */
+.brand-name {
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--yellow);
+  letter-spacing: 0.1px;
+}
+/* Workspaces in black */
+.brand-sub {
+  font-size: 13px;
+  color: #111;
+  margin-top: 2px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* centered search in header */
+.top-search {
+  display: flex;
+  justify-content: center;
+}
+.search-input {
+  display:flex;
+  align-items:center;
+  width: 720px;
+  max-width: calc(100% - 40px);
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e6e8ee;
+  padding: 8px 12px;
+  box-shadow: 0 6px 20px rgba(2,6,23,0.06);
+}
+.search-input i { color: #9aa0a6; margin-right: 10px; font-size:16px; }
+.search-input input {
+  border: none;
+  outline: none;
+  font-size: 15px;
+  flex:1;
+  padding: 6px 0;
+  background: transparent;
+}
+
+/* hide right nav - kept in DOM but not visible */
+.top-nav {
+  display: none !important;
+}
+
+/* responsive header search/nav */
+@media (max-width:980px){
+  .search-input { width: 460px; max-width: calc(100% - 40px); }
+}
+@media (max-width:760px){
+  .search-input { display:none; } /* show later via hamburger if added */
+  .site-header { grid-template-columns: auto 1fr; }
+}
+
+/* ================= HERO ================= */
+.hero {
+  position: relative;
+  min-height: 620px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  overflow: hidden;
+}
+
+/* background image (style.css is in src/, assets is sibling to src/) */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('../assets/hero.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.55);
+  transform: scale(1.02);
+  z-index: 1;
+}
+
+/* dark overlay to improve contrast */
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.45));
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* content above bg */
+.hero-inner {
+  position: relative;
+  z-index: 30;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 80px 20px 40px;
+  color: #fff;
+}
+
+/* hero heading */
+.hero-title {
+  font-size: 56px;
+  font-weight: 800;
+  margin: 0 0 12px;
+  line-height: 1.02;
+  text-shadow: 0 12px 30px rgba(0,0,0,0.45);
+}
+.hero-sub {
+  font-size: 20px;
+  margin-bottom: 26px;
+  opacity: 0.95;
+}
+
+/* big three option cards centered */
+.hero-options {
+  display:flex;
+  gap:18px;
+  justify-content:center;
+  margin: 18px 0 22px;
+  flex-wrap: wrap;
+}
+.option-card {
+  min-width: 280px;
+  padding: 26px 28px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.95);
+  color: #1f2937;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(0,0,0,0.06);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  font-weight:700;
+}
+.option-card .icon { font-size:20px; color: var(--accent); }
+.option-card:hover { transform: translateY(-4px); transition: .18s; }
+
+/* smaller tabs + search card overlapping hero (floating) */
+.service-tabs {
+  display:flex;
+  justify-content:center;
+  margin-top:6px;
+  gap:18px;
+  align-items:flex-start;
+  flex-direction: column;
+}
+
+/* tab pills */
+.tabs {
+  display:flex;
+  gap:12px;
+  justify-content:center;
+}
+.tab {
+  background: #fff;
+  border-radius: 999px;
+  padding: 12px 22px;
+  border: 1px solid rgba(0,0,0,0.06);
+  cursor: pointer;
+  font-weight:600;
+}
+.tab.active {
+  outline: 3px solid rgba(46,70,255,0.12);
+  transform: translateY(-2px);
+}
+
+/* search card that floats over hero */
+.search-card {
+  position: relative;
+  margin: 18px auto 0;
+  border-radius: 12px;
+  max-width: 980px;
+  background: rgba(255,255,255,0.98);
+  padding: 16px;
+  box-shadow: var(--shadow-strong);
+  transform: translateY(18px);
+}
+
+/* inner controls */
+.search-card .desc {
+  padding: 6px 10px;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+.controls {
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+.controls select,
+.controls input {
+  padding:12px 14px;
+  border-radius:8px;
+  border:1px solid rgba(0,0,0,0.08);
+  flex: 1;
+  min-width: 120px;
+}
+.controls #view {
+  background: var(--accent);
+  color: #fff;
+  border: 0;
+  padding: 12px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+/* ================= LISTINGS / CARDS (continuation under hero) ================= */
+.listings {
+  padding: 48px 20px 80px;
+  background: #fff;
+  color: var(--text);
+}
+
+/* listings header */
+.listings-header {
+  max-width: 1100px;
+  margin: 0 auto 24px;
+}
+.listings-title {
+  font-size: 40px;
+  font-weight: 800;
+  margin: 8px 0 10px;
+  color: #111;
+}
+.listings-sub {
+  font-size: 18px;
+  color: var(--muted);
+  margin: 0 0 26px;
+  max-width: 900px;
+}
+
+/* ---------- CARD GRID & CARDS: equal heights ---------- */
+/* card grid: desktop 3 cols, tablet 2 cols, mobile horizontal scroller */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+
+  /* ensure each grid row has equal height so cards in same row match */
+  grid-auto-rows: 1fr;
+  align-items: stretch;
+}
+
+/* individual card: stretch to fill the grid cell and use flex to layout inside */
+.card {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(2,6,23,0.04);
+
+  /* ensure card fills the implicit grid row height */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-self: stretch;
+}
+
+/* media area: fixed band so images are consistent across cards */
+.card-media {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  background: #f3f4f6;
+  flex: 0 0 auto;
+  display:block;
+}
+.card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* crop nicely to fill the media band */
+  object-position: center;
+  display: block;
+  /* help with slow networks */
+  image-rendering: auto;
+}
+
+/* body takes remaining space and keeps cards even height */
+.card-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1 1 auto; /* grow to fill remaining space */
+  justify-content: space-between;
+}
+.card-title { margin:0; font-size:20px; font-weight:700; color:#0f1724; }
+.card-desc { margin:0; color:#475569; font-size:14px; line-height:1.45; }
+
+/* small "cta" style inside card body (optional) */
+.card-cta {
+  margin-top: 12px;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ================= ON-DEMAND: horizontal scroller (desktop & mobile) ================= */
+/* apply horizontal scroller only inside .on-demand section */
+.on-demand .card-grid {
+  display: flex;
+  gap: 18px;
+  align-items: stretch;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  margin-left: 0;
+}
+
+/* each card in scroller gets a fixed min width for nice cards (desktop) */
+.on-demand .card {
+  min-width: 340px;
+  max-width: 420px;
+  flex: 0 0 auto;
+  height: auto; /* allow natural height in scroller mode */
+  scroll-snap-align: start;
+}
+
+/* give images slightly taller in on-demand scroller for visual parity */
+.on-demand .card-media { height: 200px; }
+
+/* ================= WHY CHOOSE BLUEBELL ================= */
+/* -> I tightened this to ensure the box is centered and constrained to container width */
+.why-choose {
+  max-width: 1100px; /* center inside page like other sections */
+  margin: 48px auto;
+  padding: 48px 20px;
+  background: #16238f; /* deep Blue */
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(6,12,80,0.12);
+}
+.why-choose .why-title {
+  margin: 0 0 6px;
+  font-size: 40px;
+  font-weight: 800;
+  color: #fff;
+}
+.why-choose .why-title span { color: var(--yellow); }
+.why-choose .why-sub {
+  color: rgba(255,255,255,0.9);
+  margin: 0 0 28px;
+  max-width: 900px;
+  font-size: 16px;
+}
+
+/* grid for the 4 benefit cards */
+.why-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+  margin-top: 18px;
+}
+.why-item {
+  background: transparent;
+  border-radius: 10px;
+  padding: 18px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.why-item i {
+  font-size: 26px;
+  color: var(--yellow);
+  min-width: 36px;
+}
+.why-item h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 700;
+}
+.why-item p { margin: 0; color: rgba(255,255,255,0.9); }
+
+/* small screens for why choose */
+@media (max-width:980px){
+  .why-grid { grid-template-columns: 1fr; }
+  .why-choose { padding: 28px 16px; }
+  .why-choose .why-title { font-size: 30px; }
+}
+
+/* ================= SOLUTIONS (Bluebell-styled) ================= */
+/* IMPORTANT: change solutions-grid to a horizontal flex scroller so cards DON'T wrap vertically.
+   This produces the exact horizontal scrolling behavior you showed in the screenshots. */
+.solutions-section {
+  margin: 48px auto;
+  padding: 28px 20px 40px;
+}
+.solutions-title {
+  margin: 0 0 6px;
+  font-size: 32px;
+  font-weight: 800;
+  color: #111;
+}
+.solutions-sub {
+  color: var(--muted);
+  margin: 0 0 18px;
+}
+
+/* pills (filter row) */
+.solution-pills {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 12px;
+}
+.solution-pills .pill {
+  background: #fff;
+  border: 1px solid rgba(2,6,23,0.06);
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  color: #0f1724;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: var(--shadow-soft);
+}
+.solution-pills .pill.active {
+  outline: 3px solid rgba(46,70,255,0.10);
+  transform: translateY(-2px);
+}
+
+/* make the solutions list a horizontal scroller (flex). Cards will be fixed-width so they stay uniform. */
+.solutions-grid {
+  display: flex;                 /* use flex for horizontal scrolling */
+  gap: 18px;
+  align-items: flex-start;
+  overflow-x: auto;              /* enables the horizontal scroll you want */
+  padding-bottom: 18px;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  margin-top: 6px;
+}
+
+/* scrollbar styling for the solutions scroller */
+.solutions-grid::-webkit-scrollbar { height: 10px; }
+.solutions-grid::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.10); border-radius: 999px; }
+
+/* each solution card is a fixed-width flex item so heights and images remain consistent */
+.solution-card {
+  flex: 0 0 330px;              /* fixed width — change to 360px if you want larger cards */
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(2,6,23,0.04);
+}
+
+/* consistent image area */
+.solution-media {
+  width: 100%;
+  height: 200px;                /* same height for every card image */
+  background: #f3f4f6;
+  overflow: hidden;
+}
+.solution-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;            /* important: fills area without distortion */
+  display: block;
+}
+
+/* body area */
+.solution-body {
+  padding: 16px;
+}
+.solution-body h4 { margin: 0 0 8px; font-size:18px; font-weight:800; color:#0f1724; }
+.solution-body p { margin:0; color:var(--muted); }
+
+/* Responsive fallback: when screen is narrow, stack cards vertically (no horizontal scroller) */
+@media (max-width: 760px) {
+  .solutions-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    overflow: visible;
+  }
+  .solution-card { flex: none; width: auto; }
+}
+
+/* ================= CONTENT / FOOTER ================= */
+.content {
+  padding: 48px 20px;
+  background: #fff;
+  color: var(--text);
+}
+.site-footer {
+  padding: 20px;
+  background: #f7f7f7;
+  text-align: center;
+  margin-top: 40px;
+}
+
+/* ================= RESPONSIVE tweaks ================= */
+@media (max-width:980px){
+  .hero-title { font-size: 42px; }
+  .option-card { min-width: 200px; padding: 18px; }
+  .search-input { width: 420px; }
+  .hero { min-height: 560px; }
+}
+
+@media (max-width:420px){
+  .hero-title { font-size: 22px; }
+  .brand .logo { height: 40px; }
+  .brand-name { font-size: 16px; }
+}
+
+/* optional: scrollbar styling */
+.on-demand .card-grid::-webkit-scrollbar,
+.card-grid::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+.on-demand .card-grid::-webkit-scrollbar-thumb,
+.card-grid::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.12);
+  border-radius: 999px;
+}
